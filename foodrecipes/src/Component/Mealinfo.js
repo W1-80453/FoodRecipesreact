@@ -1,33 +1,43 @@
-import React, { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'; // Add useEffect
+import { useParams } from 'react-router-dom';
 
 const Mealinfo = () => {
-    const {mealid} = useParams()
-    const[info,setInfo] = useState()
-    console.log(mealid);
+  const { mealid } = useParams();
+  const [info, setInfo] = useState(null); // Initialize info with null
 
-    const getInfo = async() =>
-    {
-        const get =await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealid}`);
-        const jsonData =await get.json();
+  // Fetch meal info when the component mounts or when mealid changes
+  useEffect(() => {
+    const getInfo = async () => {
+      try {
+        const get = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealid}`);
+        const jsonData = await get.json();
         console.log(jsonData.meals[0]);
-        setInfo(jsonData.meals[0])
-    }
-    if(mealid != "")
-    {
-        getInfo()
-    }
+        setInfo(jsonData.meals[0]);
+      } catch (error) {
+        console.error("Error fetching meal data:", error);
+      }
+    };
+
+    getInfo();
+  }, [mealid]);
+
   return (
-    <div className='mealInfo'>
-        <img/>
-        <div className='info'>
+    <div>
+      {!info ? (
+        "Data Not Found"
+      ) : (
+        <div className='mealInfo'>
+          <img src={info.strMealThumb} alt={info.strMeal} />
+          <div className='info'>
             <h1>Recipe Detail</h1>
             <button>{info.strMeal}</button>
             <h3>Instruction's</h3>
-            <p>{info.strIntructions}</p>
+            <p>{info.strInstructions}</p>
+          </div>
         </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default Mealinfo
+export default Mealinfo;
